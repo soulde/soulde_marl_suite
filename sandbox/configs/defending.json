@@ -1,0 +1,83 @@
+{
+	"sandbox": {
+		"name": "defending",
+		"mode": "train",
+		"map": {
+			"size": [20, 20]
+		},
+		"mission": {
+			"agent_start_area": [15, 0, 20, 20],
+			"num_agents": 3,
+			"agent_profile": {
+				"state_range": [
+					[20, 20, 1.5, 3.1415927],
+					[0, 0, -1.5, -3.1415927]
+				],
+				"input_range": [
+					[1, 3],
+					[-1, -3]
+				],
+				"collision": {
+					"type": "circle",
+					"radius": 1
+				}
+			},
+			"max_step": 200,
+			"hit_wall_threshold": 0.1,
+			"reach_threshold": 0.1,
+			"thread_threshold": 3,
+			"capture_num_agents_need": 1,
+			"reward": {
+				"collision_factor": -5,
+				"success_reward": 20,
+				"distance_factor": 1,
+				"failure_reward": -10
+			},
+			"enemy_info": {
+				"enemy_start_area": [0, 0, 5, 20],
+				"enemy_profile": {
+					"state_range": [
+						[20, 20, 1, 3.1415927],
+						[0, 0, -1, -3.1415927]
+					],
+					"input_range": [
+						[1, 3],
+						[-1, -3]
+					],
+					"collision": {
+						"type": "circle",
+						"radius": 1
+					}
+				},
+				"init": {
+					"num_agents": 3
+				},
+				"waves": [
+				]
+			}
+		},
+		"state": {
+		},
+		"renderer": {
+			"plot_scale": 6
+		},
+		"tick": 0.01
+	},
+	"train": {
+		"max_step": 1e7,
+		"batch_size": 128,
+		"repeat": 32,
+		"horizon": 800,
+		"actor_lr": 2e-4,
+		"critic_lr": 2e-4,
+		"gamma": 0.98,
+		"tau": 0.001,
+		"policy_update_frequency": 2,
+		"target_network_frequency": 2,
+		"max_grad_norm": 1,
+		"ent_param": 0.5,
+		"vf_param": 0.5,
+		"clip_param": 0.2,
+		"noise_param": 0.1
+	}
+}

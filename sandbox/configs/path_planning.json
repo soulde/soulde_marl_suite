@@ -1,0 +1,43 @@
+{
+	"sandbox": {
+		"name": "test",
+		"map": {
+			"size": [50, 50],
+			"num_obstacles": 3,
+			"max_obstacle_radius": 1
+		},
+		"mission": {
+			"num_agents": 1,
+			"agent_profile": {
+				"state_range": [
+					[50, 50, 1, 3.1415927],
+					[0, 0, -1, -3.1415927]
+				],
+				"input_range": [
+					[1, 3],
+					[-1, -3]
+				],
+				"collision": {
+					"type": "circle",
+					"radius": 1
+				}
+			},
+			"max_step": 1000,
+			"hit_wall_threshold": 0.1,
+			"reach_threshold": 2,
+			"reward": {
+				"smooth_factor": 50,
+				"offset_factor": -0.75,
+				"reward_scale": 1.0,
+				"collision_factor": -5,
+				"success_reward": 20
+			}
+		},
+		"state": {
+		},
+		"renderer": {
+			"plot_scale": 6
+		},
+		"tick": 0.01
+	}
+}
