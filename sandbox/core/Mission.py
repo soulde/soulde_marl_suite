@@ -31,6 +31,10 @@ class Mission(ABC):
     def calculate_reward(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def get_state(self):
+        raise NotImplementedError
+
 
 class USVMission(Mission):
     @abstractmethod
@@ -43,22 +47,11 @@ class USVMission(Mission):
         self.hit_wall_threshold = config['hit_wall_threshold']
         self.collision_info = None
         self.hit_wall_info = None
-
-    def creat_agent_from_profile(self, name, agent_type, agent_profile, init_state='random'):
-        state_range = np.array(agent_profile['state_range'])
-        input_range = np.array(agent_profile['input_range'])
-        radius = agent_profile['collision/radius']
-        collision_type = agent_profile['collision/type']
-        agent = agent_type(name, state_range, input_range, init_state, {'args': (radius,), 'type': collision_type})
-        return agent
+        for i in range(self.num_agents):
+            sandbox.register_agent('usv_{}'.format(i), USVAgent, self.agents_profile)
 
     def reset(self):
-        self.sandbox.agents.clear()
-
-        for i in range(self.num_agents):
-            self.sandbox.register_agent(
-                self.creat_agent_from_profile('agent_{}'.format(1), USVAgent, self.agents_profile))
-
+        pass
 
     def is_termination(self):
         max_step_termination = self.sandbox.n_step > self.max_step
@@ -73,3 +66,6 @@ class USVMission(Mission):
         upper_range = self.sandbox.size_ - lower_range
         self.hit_wall_info = [(np.any(agent.pos < lower_range) or np.any(agent.pos > upper_range)) for agent in
                               self.sandbox.agents]
+
+    def get_state(self):
+        return np.stack([agent.state for agent in self.sandbox.agents])

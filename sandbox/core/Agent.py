@@ -50,14 +50,17 @@ class Agent(ABC):
     def __str__(self):
         return self.name_
 
+    @classmethod
     @property
     @abstractmethod
-    def dim_state(self):
+    def dim_state(cls):
+
         raise NotImplementedError
 
+    @classmethod
     @property
     @abstractmethod
-    def dim_input(self):
+    def dim_input(cls):
         raise NotImplementedError
 
     @property
@@ -95,13 +98,16 @@ class USVAgent(Agent):
         self.state_[1] += self.state_[2] * np.sin(self.state_[3])
         self.state_[:2] = clip(self.state_[:2], self.state_range_[1, :2], self.state_range_[0, :2])
 
+    @classmethod
     @property
-    def dim_state(self):
+    def dim_state(cls):
         return np.array([4, ])
 
+    @classmethod
     @property
-    def dim_input(self):
+    def dim_input(cls):
         return np.array([2, ])
+
 
 # class USVWithTransmission(USVAgent):
 #     def __init__(self, name, state_range, input_range, radius, transmitter_buffer_length, max_communicate_distance,
@@ -116,3 +122,7 @@ class USVAgent(Agent):
 #
 #     def receive(self):
 #         return self.transmitter.receive()
+
+AGENT_TYPE_LUT = {
+    'usv': USVAgent,
+}

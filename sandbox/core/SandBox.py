@@ -2,7 +2,6 @@ from .Agent import Agent
 from .CollisionServer import CollisionServer
 from utils import Config
 from .Mission import Mission
-from .StateWrapper import StateWrapper
 from .MapGenerator import MapGenerator
 from .Renderer import Renderer
 import numpy as np
@@ -10,11 +9,11 @@ import cv2
 
 
 class SandBox:
-    def __init__(self, config: Config, map_generator, mission, states_wrapper, renderer, info_logger=None):
+    def __init__(self, config: Config, map_generator, mission, renderer, info_logger=None):
 
         assert issubclass(map_generator, MapGenerator)
         assert issubclass(mission, Mission)
-        assert issubclass(states_wrapper, StateWrapper)
+
         assert issubclass(renderer, Renderer)
         # environment config
         self.config = config
@@ -24,11 +23,10 @@ class SandBox:
 
         # sandbox mechanism component
         self.agents: list[Agent] = list()
-
+        self.agents_type_profile_list = []
         self.time_ = 0
 
         self.map_generator_ = map_generator(self.config['map'])
-        self.states_wrapper_ = states_wrapper(self.config['state'], self)
         self.mission_ = mission(self.config['mission'], self)
         self.renderer_ = renderer(self.config['renderer'], self)
 
@@ -39,14 +37,20 @@ class SandBox:
         self.frame = None
         self.size_ = None
 
-    def register_agent(self, agent: Agent):
-        self.agents.append(agent)
-        self.collision_server.register(agent.name, agent.pos, agent.collision_info_['type'],
-                                       *agent.collision_info_['args'])
+    @staticmethod
+    def creat_agent_from_profile(name, agent_type, agent_profile, init_state='random'):
+        state_range = np.array(agent_profile['state_range'])
+        input_range = np.array(agent_profile['input_range'])
+        radius = agent_profile['collision/radius']
+        collision_type = agent_profile['collision/type']
+        agent = agent_type(name, state_range, input_range, init_state, {'args': (radius,), 'type': collision_type})
+        return agent
+
+    def register_agent(self, name, agent_type, profile):
+        self.agents_type_profile_list.append((name, agent_type, profile))
 
     def _agent_dynamic_step(self, actions):
         for agent_, actions in zip(self.agents, actions):
-
             agent_(actions, self.tick)
         self.time_ += self.tick
 
@@ -69,10 +73,11 @@ class SandBox:
         return self.time_ / self.tick
 
     def step(self, actions):
-        self._agent_dynamic_step(actions)
-        self._collision_server_update()
+        if actions is not None:
+            self._agent_dynamic_step(actions)
+            self._collision_server_update()
         self.mission_.step()
-        states = self.states_wrapper_()
+        states = self.mission_.get_state()
         reward = self.mission_.calculate_reward()
         done, truncation = self.mission_.is_termination()
         if self.logger is None:
@@ -82,11 +87,16 @@ class SandBox:
         return states, reward, done, truncation, info
 
     def sample(self, zero=False):
-        high, low = self.agents[0].input_range_
-        if zero:
-            return np.zeros((len(self.agents), high.shape[0]))
-        else:
-            return np.random.uniform(low, high, size=(len(self.agents), high.shape[0]))
+        actions = []
+
+        for i in self.agents_type_profile_list:
+            n, a, p = i
+            high, low = p['input_range']
+            single_action = np.random.uniform(low, high, size=(high.shape[0]))
+            if zero:
+                single_action = np.zeros_like(single_action)
+            actions.append(single_action)
+        return actions
 
     def reset(self):
         self.time_ = 0
@@ -95,12 +105,11 @@ class SandBox:
         self.size_ = self.frame.shape[:-1]
         for x, y, r in collision_info:
             self.collision_server.register('coli_{}_{}_{}'.format(x, y, r), np.array([x, y]), 'circle', r)
-
+        for n, a, p in self.agents_type_profile_list:
+            self.agents.append(self.creat_agent_from_profile(n, a, p))
         self.mission_.reset()
-        for agent in self.agents:
-            self.collision_server.register(agent.name, agent.pos, agent.collision_info_['type'],
-                                           *agent.collision_info_['args'])
-        states = self.states_wrapper_()
+
+        states = self.mission_.get_state()
         if self.logger is None:
             info = {}
         else:
