@@ -5,7 +5,51 @@ import os
 from torch.optim import AdamW
 
 
-class Policy(object):
+class ValueBase(object):
+    def __init__(self, model_type, n_agents, actor_state_size, actor_action_size, param):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.models = [model_type(actor_state_size, actor_action_size).to(self.device) for _
+                       in range(n_agents)]
+        self.models_target = [model_type(actor_state_size, actor_action_size).to(self.device)
+                              for _ in range(n_agents)]
+
+        self.gamma = param.gamma
+        self.tau = param.tau
+        self.policy_update_frequency = param.policy_update_frequency
+        self.target_network_frequency = param.target_network_frequency
+        self.max_grad_norm = param.max_grad_norm
+        self.train_count = 0
+        self.critic_loss = SmoothL1Loss()
+
+        self.optimizer = AdamW(sum((list(actor.parameters()) for actor in self.models), []), lr=param.actor_lr)
+
+    def save_model(self, directory: str, name: str):
+        for i, (actor, actor_target) in enumerate(zip(self.models, self.models_target)):
+            torch.save(actor.state_dict(), os.path.join(directory, 'model_{}_{}.pth'.format(i, name)))
+            torch.save(actor_target.state_dict(), os.path.join(directory, 'model_target_{}_{}.pth'.format(i, name)))
+
+    def load_model(self, directory: str, name: int):
+        for i, (actor, actor_target) in enumerate(zip(self.models, self.models_target)):
+            actor.load_state_dict(torch.load(os.path.join(directory, 'model_{}_{}.pth'.format(i, name))))
+            actor_target.load_state_dict(
+                torch.load(os.path.join(directory, 'model_target_{}_{}.pth'.format(i, name))))
+
+    def get_value(self, states, use_target=False):
+        qf = torch.stack(tuple(model(states[:, i]) for i, model in
+                               enumerate(self.models_target if use_target else self.models)), dim=1)
+
+        return qf
+
+    def get_action(self, state):
+        q = self.get_value(state, True)
+        return torch.max(q, dim=-1)[1]
+
+    @abstractmethod
+    def train(self, batch_data):
+        raise NotImplementedError
+
+
+class ACPolicy(object):
     def __init__(self, actor_type, critic_type, n_agents, actor_state_size, actor_action_size, param, action_scale=1,
                  action_bias=0):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

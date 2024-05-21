@@ -2,7 +2,7 @@ from .Policy import *
 from utils import soft_update_model_weight
 
 
-class MATD3(Policy):
+class MATD3(ACPolicy):
     def __init__(self, actor_type, critic_type, n_agents, actor_state_size, actor_action_size, param, action_scale=1,
                  action_bias=0):
         super(MATD3, self).__init__(actor_type, critic_type, n_agents, actor_state_size, actor_action_size, param,

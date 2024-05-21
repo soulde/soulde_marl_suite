@@ -2,7 +2,7 @@ from .Policy import *
 import numpy as np
 
 
-class MAPPO(Policy):
+class MAPPO(ACPolicy):
     def __init__(self, actor_type, critic_type, n_agents, actor_state_size, actor_action_size, param, action_scale=1,
                  action_bias=0):
         super(MAPPO, self).__init__(actor_type, critic_type, n_agents, actor_state_size, actor_action_size, param,
