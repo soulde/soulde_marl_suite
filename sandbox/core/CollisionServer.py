@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 class Shape(ABC):
     shape = (
         'circle',
+        'occupancy'
     )
 
     def __init__(self, *args):
@@ -30,6 +31,14 @@ class Circle(Shape):
 
     def is_point_inside(self, pos):
         return np.linalg.norm(self.pos - pos) < self.radius
+
+
+class Occupancy(Shape):
+    type = 'occupancy'
+
+    def __init__(self, *args):
+        super(Occupancy, self).__init__(*args)
+        self.map = args[0]
 
 
 class CollisionServer:

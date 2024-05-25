@@ -9,12 +9,6 @@ from numpy import clip
 from .CollisionServer import CollisionServer
 
 
-class State(Enum):
-    idle = 0
-    commit = 1
-    busy = 2
-
-
 class Agent(ABC):
     def __init__(self, name, state_range, input_range, initial_state=None, collision_info=None):
         if collision_info is None:
@@ -66,11 +60,6 @@ class Agent(ABC):
     @property
     def name(self):
         return self.name_
-
-
-class USVType(Enum):
-    leader = 0,
-    follower = 1
 
 
 class USVAgent(Agent):

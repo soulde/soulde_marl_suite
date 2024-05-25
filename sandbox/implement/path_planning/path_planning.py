@@ -1,6 +1,6 @@
 import numpy as np
 
-from core import SandBox, ObstacleMapGenerator, RawStateWrapper, USVMission, BasicRenderer
+from core import SandBox, ObstacleMapGenerator, USVMission, BasicRenderer
 from functools import partial
 from utils import Config
 
@@ -47,7 +47,5 @@ class PathPlanningMission(USVMission):
 
 PathPlanningRenderer = BasicRenderer
 
-PathPlanningStateWrapper = RawStateWrapper
-
 PathPlanningSandbox = partial(SandBox, map_generator=ObstacleMapGenerator, mission=PathPlanningMission,
-                              states_wrapper=PathPlanningStateWrapper, renderer=PathPlanningRenderer)
+                              renderer=PathPlanningRenderer)

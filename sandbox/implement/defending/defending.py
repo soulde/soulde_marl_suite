@@ -1,6 +1,5 @@
 import numpy as np
-
-from core import SandBox, RawStateWrapper, USVMission, BasicRenderer, USVAgent, EmptyMapGenerator, StateWrapper
+from sandbox.core import SandBox, USVMission, BasicRenderer, USVAgent, EmptyMapGenerator, StateWrapper
 from functools import partial
 from utils import Config
 import cv2
