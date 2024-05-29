@@ -4,6 +4,6 @@ setup(
     name="soulde_marl_suite",
     version='1.0',
     author='soulde',
-    install_requires=['numpy', 'opencv-python', 'torch', 'tqdm', 'matplotlib'],
+    install_requires=['numpy', 'opencv-python', 'torch', 'tqdm', 'matplotlib', 'tensorboard', 'tqdm'],
     packages=find_packages()
 )

@@ -9,6 +9,7 @@ class MAPPO(ACPolicy):
                                     action_scale, action_bias)
         self.clip_param = param.clip_param
         self.ent_param = param.ent_param
+
     def save_model(self, directory: str, name: str):
         for i, actor in enumerate(self.actors):
             torch.save(actor.state_dict(), os.path.join(directory, 'actor_{}_{}.pth'.format(i, name)))
@@ -20,6 +21,7 @@ class MAPPO(ACPolicy):
             actor.load_state_dict(torch.load(os.path.join(directory, 'actor_{}_{}.pth'.format(i, name))))
 
         self.critic.load_state_dict(torch.load(os.path.join(directory, 'critic_{}.pth'.format(name))))
+
     def get_action_and_value(self, states, actions=None):
         if actions is None:
             actions, log_probs, entropy = zip(*(actor(states[:, i], actions) for i, actor in enumerate(self.actors)))
