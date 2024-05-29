@@ -1,5 +1,6 @@
 import numpy as np
-from sandbox.core import SandBox, USVMission, BasicRenderer, USVAgent, EmptyMapGenerator, StateWrapper
+
+from sandbox.core import SandBox, USVMission, BasicRenderer, USVAgent, EmptyMapGenerator
 from functools import partial
 from utils import Config
 import cv2
@@ -30,22 +31,18 @@ class DefendMission(USVMission):
         self.distance = np.zeros(self.num_agents)
         self.err_distance = np.zeros(self.num_agents)
 
-    def reset(self):
-        self.sandbox.agents.clear()
-
         for i in range(self.num_agents):
-            pos = np.random.uniform(self.agent_start_area[:2], self.agent_start_area[2:])
+            self.sandbox.register_agent('agent_{}'.format(i), USVAgent, self.agents_profile)
 
-            self.sandbox.register_agent(
-                self.creat_agent_from_profile('agent_{}'.format(i), USVAgent, self.agents_profile, init_state=pos))
+    def reset(self):
+        self.enemy_counter = 0
         for i in range(self.init_enemy['num_agents']):
             self._add_single_enemy()
 
     def _add_single_enemy(self):
         pos = np.random.uniform(self.enemy_start_area[:2], self.enemy_start_area[2:])
-        enemy: USVAgent = self.creat_agent_from_profile('enemy_{}'.format(self.enemy_counter), USVAgent,
-                                                        self.enemy_profile,
-                                                        pos)
+        enemy: USVAgent = self.sandbox.creat_agent_from_profile('enemy_{}'.format(self.enemy_counter), USVAgent,
+                                                                self.enemy_profile, pos)
         self.sandbox.collision_server.register(enemy.name, enemy.pos, enemy.collision_info_['type'],
                                                *enemy.collision_info_['args'])
         self.enemy.append(enemy)
@@ -106,7 +103,7 @@ class DefendMission(USVMission):
         action = np.zeros(enemy.dim_input)
         vec = np.zeros(2)
         for a in self.sandbox.agents:
-            vec -= 20/(20+(a.pos - enemy.pos))
+            vec -= 20 / (20 + (a.pos - enemy.pos))
         vec += np.array([1, 0])
         vec /= np.linalg.norm(vec)
         theta_target = np.arctan2(vec[1], vec[0])
@@ -133,6 +130,18 @@ class DefendMission(USVMission):
         max_step_termination = self.sandbox.n_step > self.max_step
         return any([no_enemy_termination]), max_step_termination
 
+    def get_state(self):
+        states = []
+        for a in self.sandbox.agents:
+            try:
+                ret = min(self.sandbox.mission_.enemy, key=lambda x: np.linalg.norm(a.pos - x.pos)).state
+            except ValueError:
+                ret = np.zeros_like(a.state)
+
+            states.append(np.concatenate([*tuple(a.state for a in self.sandbox.agents), ret]))
+
+        return np.stack(states)
+
 
 class DefendingRenderer(BasicRenderer):
     def __init__(self, config: Config, sandbox: SandBox):
@@ -156,22 +165,5 @@ class DefendingRenderer(BasicRenderer):
             return frame_copy
 
 
-class DefendingStateWrapper(StateWrapper):
-    def __call__(self):
-        states = []
-        for a in self.sandbox_.agents:
-            try:
-                ret = min(self.sandbox_.mission_.enemy, key=lambda x: np.linalg.norm(a.pos - x.pos)).state
-            except ValueError:
-                ret = np.zeros_like(a.state)
-
-            states.append(np.concatenate([*tuple(a.state for a in self.sandbox_.agents), ret]))
-
-        return np.stack(states)
-
-    def __init__(self, config: Config, sandbox: SandBox):
-        super(DefendingStateWrapper, self).__init__(config, sandbox)
-
-
 DefendingSandbox = SandBox = partial(SandBox, map_generator=EmptyMapGenerator, mission=DefendMission,
-                                     states_wrapper=DefendingStateWrapper, renderer=DefendingRenderer)
+                                     renderer=DefendingRenderer)

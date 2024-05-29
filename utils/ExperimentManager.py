@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from typing import Union
 from torch.utils.tensorboard import SummaryWriter
-from .ConfigParser import ConfigParser
+from .Config import Config
 
 
 class ExperimentManager:
@@ -21,8 +21,8 @@ class ExperimentManager:
             self.tensorboard_writer.close()
 
     def start_experiment(self, config_url, tag='train'):
-        self.args = ConfigParser(config_url)
-        self.experiments_name = tag + '_' + self.args['/world/env_name'] + '_' + f'{datetime.now():%Y%m%d_%H%M%S}'
+        self.args = Config(config_url)
+        self.experiments_name = tag + '_' + self.args['/sandbox/name'] + '_' + f'{datetime.now():%Y%m%d_%H%M%S}'
         experiment_url: Union[str, bytes] = os.path.join(self.directory, self.experiments_name)
         os.makedirs(experiment_url, exist_ok=True)
         with open(os.path.join(experiment_url, 'config.json'), 'w') as f:

@@ -47,8 +47,7 @@ class USVMission(Mission):
         self.hit_wall_threshold = config['hit_wall_threshold']
         self.collision_info = None
         self.hit_wall_info = None
-        for i in range(self.num_agents):
-            sandbox.register_agent('usv_{}'.format(i), USVAgent, self.agents_profile)
+
 
     def reset(self):
         pass

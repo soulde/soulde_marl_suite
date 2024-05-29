@@ -1,6 +1,4 @@
 import torch
-import gymnasium as gym
-from itertools import count
 import numpy as np
 
 
@@ -11,7 +9,8 @@ class ReplayBuffer(object):
                  gae_lambda=0.95, device='cuda'):
         reserved_formate = ('states', 'actions', 'rewards', 'non_terminate_factors')
         input_formate = reserved_formate + additional_input_formate
-        sample_formate = reserved_formate[:-1] + additional_input_formate + ('advantages',) if use_advantage else input_formate
+        sample_formate = reserved_formate[:-1] + additional_input_formate + (
+        'advantages',) if use_advantage else input_formate
         assert len(shapes) == len(input_formate)
         self.capacity_ = capacity
         self.device = device if torch.cuda.is_available() else 'cpu'

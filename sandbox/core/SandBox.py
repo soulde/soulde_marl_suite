@@ -105,8 +105,12 @@ class SandBox:
         self.size_ = self.frame.shape[:-1]
         for x, y, r in collision_info:
             self.collision_server.register('coli_{}_{}_{}'.format(x, y, r), np.array([x, y]), 'circle', r)
+        self.agents.clear()
         for n, a, p in self.agents_type_profile_list:
-            self.agents.append(self.creat_agent_from_profile(n, a, p))
+            agent = self.creat_agent_from_profile(n, a, p)
+            self.agents.append(agent)
+            self.collision_server.register(agent.name, agent.pos, agent.collision_info_['type'], *agent.collision_info_['args'])
+
         self.mission_.reset()
 
         states = self.mission_.get_state()

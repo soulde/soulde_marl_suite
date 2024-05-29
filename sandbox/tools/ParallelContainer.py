@@ -23,7 +23,7 @@ class ParallelContainer:
 
         [process.start() for process in self.processes]
 
-        return self._async_recv()
+        return self._sync_recv()
 
     def join(self):
         self.stop_byte = True
@@ -36,15 +36,17 @@ class ParallelContainer:
         for i, (a, p) in enumerate(zip(actions, self.env_pipes)):
             # print('sending action to {}'.format(i))
             p.send(a)
-        return self._async_recv()
+        return self._sync_recv()
 
-    def _async_recv(self):
+    def _sync_recv(self):
         # print('waiting for state')
         sorted_ret = sorted([self.container_pipe[0].recv() for _ in range(self.n_env)], key=lambda x: x[0])
         # print('received {} states'.format(len(sorted_ret)))
         sorted_ret = [ret[1] for ret in sorted_ret]
-
-        return tuple(i for i in zip(*sorted_ret))
+        ret = tuple(i for i in zip(*sorted_ret))
+        ob = ret[:-1]
+        ob = [np.stack(i) for i in ob]
+        return *ob, ret[-1]
 
 
 class EnvProcess(Process):

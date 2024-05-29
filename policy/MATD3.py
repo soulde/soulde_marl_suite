@@ -9,6 +9,8 @@ class MATD3(ACPolicy):
                                     action_scale, action_bias)
 
         self.noise_param = param.noise_param
+        self.action_scale = action_scale
+        self.action_bias = action_bias
 
     def train(self, batch_data):
 
@@ -21,7 +23,8 @@ class MATD3(ACPolicy):
             actions_with_noise = torch.clamp(
                 torch.clamp(torch.randn_like(next_state_actions) * self.noise_param, min=-0.5,
                             max=0.5) + next_state_actions,
-                min=-1, max=1)
+                min=torch.tensor(-self.action_scale + self.action_bias).to(next_state_actions),
+                max=torch.tensor(self.action_scale + self.action_bias).to(next_state_actions))
             qf = self.get_value(next_observations, actions_with_noise, True)
             min_qf = torch.min(qf, dim=-1, keepdim=True)[0]
             next_q_values = rewards + done_factors * min_qf

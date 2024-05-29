@@ -1,6 +1,6 @@
 import numpy as np
 
-from core import SandBox, ObstacleMapGenerator, USVMission, BasicRenderer
+from sandbox.core import SandBox, ObstacleMapGenerator, USVMission, BasicRenderer
 from functools import partial
 from utils import Config
 
