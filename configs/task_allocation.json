@@ -1,0 +1,73 @@
+{
+	"sandbox": {
+		"name": "task_allocation",
+		"mode": "train",
+		"reward_scale_factor": 1,
+		"map": {
+			"size": [500, 500]
+		},
+		"mission": {
+			"num_tasks_total": 10,
+			"task_queue_length": 10,
+			"work_mode": "fast",
+
+			"num_agents": 3,
+			"agent_profile": {
+				"state_range": [
+					[500, 500, 1],
+					[0, 0, 1]
+				],
+				"input_range": [
+					[500, 500],
+					[0, 0]
+				],
+				"init_area": [
+					[10, 10],
+					[50, 50]
+				],
+				"collision": {
+					"type": "circle",
+					"radius": 2
+				}
+			},
+			"task_profile":  {
+				"pos_range": [
+					[500, 500],
+					[0, 0]
+				],
+				"radius_range": [10,25]
+			},
+			"max_step": 50000000000000000,
+			"reach_threshold": 0.1,
+			"reward": {
+				"success_reward": 20,
+				"distance_factor": 3
+			}
+        },
+		"state": {
+		},
+		"renderer": {
+			"plot_scale": 6
+		},
+		"tick": 0.01
+	},
+	"train": {
+		"n_envs": 24,
+		"max_step": 2e5,
+		"batch_size": 128,
+		"repeat": 4,
+		"capacity": 1e5,
+		"explore_step": 1e5,
+		"actor_lr": 1e-4,
+		"critic_lr": 1e-4,
+		"gamma": 0.97,
+		"tau": 0.001,
+		"policy_update_frequency": 4,
+		"target_network_frequency": 2,
+		"max_grad_norm": 1,
+		"ent_param": 0.04,
+		"vf_param": 0.5,
+		"clip_param": 0.25,
+		"noise_param": 0.1
+	}
+}

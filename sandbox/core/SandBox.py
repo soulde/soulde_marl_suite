@@ -9,7 +9,7 @@ import cv2
 
 
 class SandBox:
-    def __init__(self, config: Config, map_generator, mission, renderer, info_logger=None):
+    def __init__(self, config: Config, map_generator, mission, renderer, info_logger=None, render_mode='human'):
 
         assert issubclass(map_generator, MapGenerator)
         assert issubclass(mission, Mission)
@@ -36,13 +36,19 @@ class SandBox:
         self.collision_server = CollisionServer()
         self.frame = None
         self.size_ = None
+        self.render_mode = render_mode
 
     @staticmethod
-    def creat_agent_from_profile(name, agent_type, agent_profile, init_state='random'):
+    def creat_agent_from_profile(name, agent_type, agent_profile):
         state_range = np.array(agent_profile['state_range'])
         input_range = np.array(agent_profile['input_range'])
         radius = agent_profile['collision/radius']
         collision_type = agent_profile['collision/type']
+        try:
+            init_area = agent_profile['init_area']
+            init_state = np.random.uniform(init_area[0], init_area[1])
+        except KeyError:
+            init_state = 'random'
         agent = agent_type(name, state_range, input_range, init_state, {'args': (radius,), 'type': collision_type})
         return agent
 
@@ -73,10 +79,16 @@ class SandBox:
         return self.time_ / self.tick
 
     def step(self, actions):
-        if actions is not None:
-            self._agent_dynamic_step(actions)
-            self._collision_server_update()
-        self.mission_.step()
+        actions = self.mission_.action_transform(actions)
+        while True:
+            if actions is not None:
+                self._agent_dynamic_step(actions)
+                self._collision_server_update()
+                self.renderer_.render(mode=self.render_mode)
+            self.mission_.step()
+            if not self.mission_.skip_frame():
+                print('break')
+                break
         states = self.mission_.get_state()
         reward = self.mission_.calculate_reward()
         done, truncation = self.mission_.is_termination()
@@ -86,31 +98,18 @@ class SandBox:
             info = self.logger()
         return states, reward, done, truncation, info
 
-    def sample(self, zero=False):
-        actions = []
-
-        for i in self.agents_type_profile_list:
-            n, a, p = i
-            high, low = p['input_range']
-            single_action = np.random.uniform(low, high, size=(high.shape[0]))
-            if zero:
-                single_action = np.zeros_like(single_action)
-            actions.append(single_action)
-        return actions
-
     def reset(self):
         self.time_ = 0
         self.collision_server.reset()
-        self.frame, collision_info = self.map_generator_.generate()
-        self.size_ = self.frame.shape[:-1]
-        for x, y, r in collision_info:
-            self.collision_server.register('coli_{}_{}_{}'.format(x, y, r), np.array([x, y]), 'circle', r)
+        self.frame = self.map_generator_.generate()
+        self.size_ = self.frame.shape
+        self.collision_server.set_background(self.frame)
         self.agents.clear()
         for n, a, p in self.agents_type_profile_list:
             agent = self.creat_agent_from_profile(n, a, p)
             self.agents.append(agent)
-            self.collision_server.register(agent.name, agent.pos, agent.collision_info_['type'], *agent.collision_info_['args'])
-
+            self.collision_server.register(agent.name, agent.pos, agent.collision_info_['type'],
+                                           *agent.collision_info_['args'])
         self.mission_.reset()
 
         states = self.mission_.get_state()
@@ -122,3 +121,14 @@ class SandBox:
 
     def render(self, mode='human'):
         self.renderer_.render(mode=mode)
+
+    def sample(self, zero=False):
+        return self.mission_.sample(zero=zero)
+
+    @property
+    def action_dim(self):
+        return self.mission_.action_dim
+
+    @property
+    def state_dim(self):
+        return self.mission_.state_dim

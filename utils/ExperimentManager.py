@@ -20,8 +20,9 @@ class ExperimentManager:
         if self.tensorboard_writer is not None:
             self.tensorboard_writer.close()
 
-    def start_experiment(self, config_url, tag='train'):
+    def start_experiment(self, config_url):
         self.args = Config(config_url)
+        tag = self.args['/sandbox/mode']
         self.experiments_name = tag + '_' + self.args['/sandbox/name'] + '_' + f'{datetime.now():%Y%m%d_%H%M%S}'
         experiment_url: Union[str, bytes] = os.path.join(self.directory, self.experiments_name)
         os.makedirs(experiment_url, exist_ok=True)
