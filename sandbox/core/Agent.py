@@ -48,7 +48,6 @@ class Agent(ABC):
     @property
     @abstractmethod
     def dim_state(cls):
-
         raise NotImplementedError
 
     @classmethod
@@ -60,6 +59,35 @@ class Agent(ABC):
     @property
     def name(self):
         return self.name_
+
+
+class TaskAllocationAgent(Agent):
+    @classmethod
+    @property
+    def dim_input(cls):
+        return np.array((2,))
+
+    @classmethod
+    @property
+    def dim_state(cls):
+        return np.array((3,))
+
+    def __init__(self, name, state_range, input_range, initial_state=None, collision_info=None):
+        super().__init__(name, state_range, input_range, initial_state, collision_info=collision_info)
+
+    @property
+    def pos(self):
+        return self.state[:2]
+
+    @property
+    def velocity(self):
+        return self.state[2]
+
+    def __call__(self, u, t):
+        u = clip(u, self.input_range_[1], self.input_range_[0])
+        self.state_[:2] += (u - self.state_[:2]) * self.velocity * t
+        self.state_ = clip(self.state_, self.state_range_[1], self.state_range_[0])
+
 
 
 class USVAgent(Agent):
