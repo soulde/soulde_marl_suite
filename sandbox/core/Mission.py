@@ -119,3 +119,37 @@ class USVMission(Mission):
             high, low = p['state_range']
             dims.append(len(high))
         return tuple(dims)
+
+
+class MujocoBaseMission(Mission):
+    def __init__(self, config: Config, sandbox: SandBox):
+        super(MujocoBaseMission, self).__init__(config, sandbox)
+
+    def reset(self):
+        pass
+
+    def is_termination(self) -> (bool, bool):
+        pass
+
+    def step(self):
+        pass
+
+    def calculate_reward(self):
+        pass
+
+    def get_state(self):
+        pass
+
+    def skip_frame(self) -> bool:
+        pass
+
+    def sample(self, zero=False):
+        pass
+
+    @property
+    def action_dim(self):
+        raise NotImplementedError
+
+    @property
+    def state_dim(self):
+        raise NotImplementedError

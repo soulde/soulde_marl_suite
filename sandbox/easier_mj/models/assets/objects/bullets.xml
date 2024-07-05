@@ -1,0 +1,14 @@
+<mujoco model="bullets">
+    <asset>
+        <texture file="../textures/light-wood.png" type="2d" name="tex-light-wood"/>
+        <material name="light-wood" reflectance="0.5" texrepeat="20 20" texture="tex-light-wood" texuniform="true"/>
+    </asset>
+
+    <worldbody>
+        <composite type="particle" count="10 10 10" spacing="0.007" offset="0 0 2">
+            <geom size=".005" rgba=".1 .8 .1 .9"/>
+        </composite>
+
+
+    </worldbody>
+</mujoco>

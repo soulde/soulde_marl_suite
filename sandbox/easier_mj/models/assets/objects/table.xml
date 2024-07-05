@@ -1,0 +1,18 @@
+<mujoco model="table">
+    <asset>
+        <texture file="../textures/light-wood.png" type="2d" name="tex-light-wood"/>
+        <material name="light-wood" reflectance="0.5" texrepeat="20 20" texture="tex-light-wood" texuniform="true"/>
+    </asset>
+
+    <worldbody>
+        <body name="table" pos="0 0 1">
+            <freejoint></freejoint>
+            <geom pos="0 0 0" size="0.3 0.3 0.3" type="box" name="table_collision" friction="1 0.005 0.0001"/>
+            <geom pos="0 0 0" size="0.3 0.3 0.3" type="box" conaffinity="0" contype="0" group="1" name="table_visual"
+                  material="light-wood"/>
+            <!--                        <site pos="0 0 0.4" name="TABLE_top" size="0.001 0.001 0.001" rgba="0 0 0 0"/>-->
+        </body>
+
+
+    </worldbody>
+</mujoco>

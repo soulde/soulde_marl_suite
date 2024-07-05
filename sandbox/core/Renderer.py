@@ -24,6 +24,14 @@ class Renderer(ABC):
         raise NotImplementedError
 
 
+class MujocoRenderer(Renderer):
+    def __init__(self, config: Config, sandbox: SandBox):
+        super(MujocoRenderer, self).__init__(config, sandbox)
+
+    def render(self, mode):
+        raise NotImplementedError
+
+
 class BasicRenderer(Renderer):
     def __init__(self, config: Config, sandbox: SandBox):
         super(BasicRenderer, self).__init__(config, sandbox)

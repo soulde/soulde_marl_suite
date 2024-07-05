@@ -1,0 +1,80 @@
+<!-- =================================================
+    Copyright 2016 Vikash Kumar
+    Model   :: Fetch (MuJoCoV2.0)
+    Author  :: Vikash Kumar (vikashplus@gmail.com)
+    Details :: https://github.com/vikashplus/fetch_sim
+    License :: Under Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+====================================================== -©vk©-->
+<!-- Modified for furniture environment -->
+
+<mujoco model="utv">
+    <actuator>
+        <velocity ctrllimited="true" ctrlrange="-7 7" joint="joint_front_left_wheel" kv="40"
+                  name="vel_front_left_wheel"/>
+                <velocity ctrllimited="true" ctrlrange="-7 7" joint="joint_front_right_wheel" kv="40"
+                  name="vel_front_right_wheel"/>
+        <velocity ctrllimited="true" ctrlrange="-7 7" joint="joint_rear_left_wheel" kv="40" name="vel_rear_left_wheel"/>
+
+        <velocity ctrllimited="true" ctrlrange="-7 7" joint="joint_rear_right_wheel" kv="40"
+                  name="vel_rear_right_wheel"/>
+    </actuator>
+    <asset>
+        <mesh name="base_link" file="meshes/base_link.stl"/>
+        <mesh name="wheel_link" file="meshes/wheel.stl"/>
+        <!--        -->
+        <!--        <mesh name="estop_link" file="meshes/estop_link.stl"/>-->
+        <!--        <mesh name="laser_link" file="meshes/laser_link.stl"/>-->
+        <!--        <mesh name="torso_fixed_link" file="meshes/torso_fixed_link.stl"/>-->
+    </asset>
+
+    <default/>
+
+
+    <worldbody>
+        <body name='base' pos='0 0 0' quat="0 0 0 1">
+            <joint type="free" name="car_free_joint"/>
+            <body name="base_link" pos="0.3 0.27 -0.8" quat="0.707 0 0 0.707">
+                <geom type="mesh" mesh="base_link" name="base_link_collision"/>
+                <inertial pos="-0.0036 0 0.0014" quat="0.760522 -0.0132765 -0.00610742 0.649147" mass="50"
+                          diaginertia="150 140 100"/>
+                <body name="front_left_wheel_link" pos="0.256 0.2854 0.03282" quat=" 0 0 0 1">
+                    <joint name="joint_front_left_wheel" pos="0 0 0" axis="0 1 0" limited="false" damping="50"/>
+                    <inertial pos="0 0 0" quat="1 0 0 0" mass="1"
+                              diaginertia="0.18 0.2 0.18"/>
+                    <geom type="mesh" rgba="0.8 0 0 1" mesh="wheel_link" name="l_wheel_link_collision"/>
+                </body>
+                <body name="front_right_wheel_link" pos="0.256 -0.2854 0.03282" quat="0 0 0 1">
+                    <joint name="joint_front_right_wheel" pos="0 0 0" axis="0 1 0" limited="false" damping="50"/>
+                    <inertial pos="0 0 0" quat="1 0 0 0"
+                              mass="1" diaginertia="0.18 0.2 0.18"/>
+                    <geom type="mesh" rgba="0.8 0 0 1" mesh="wheel_link" name="r_wheel_link_collision"/>
+                </body>
+                <body name="rear_left_wheel_link" pos="-0.256 0.2854 0.03282 " quat="0 0 0 1">
+                    <joint name="joint_rear_left_wheel" pos="0 0 0" axis="0 1 0" limited="false"/>
+                    <inertial pos="0 0 0" quat="1 0 0 0"
+                              mass="1" diaginertia="0.18 0.2 0.18"/>
+                    <geom type="mesh" rgba="0.8 0 0 1" mesh="wheel_link" name="rear_left_wheel_link_collision"/>
+                </body>
+                <body name="rear_right_wheel_link" pos="-0.256 -0.2854 0.03282" quat="0 0 0 1">
+                    <joint name="joint_rear_right_wheel" pos="0 0 0" axis="0 1 0" limited="false" damping="50"/>
+                    <inertial pos="0 0 0" quat="1 0 0 0"
+                              mass="1" diaginertia="0.18 0.2 0.18"/>
+                    <geom type="mesh" rgba="0.8 0 0 1" mesh="wheel_link" name="rear_right_wheel_link_collision"/>
+                </body>
+                <body name="arm_install_block" pos="-0.08 0 0.24" quat="1 0 0 0">
+                    <inertial pos="0 0 0" quat="1 0 0 0"
+                              mass="0.00001" diaginertia="3.39072e-07 2.83252e-07 2.02321e-07"/>
+                    <geom rgba="0.1 0 0 1" type="box" size=" 0.15 0.13 0.01" name="arm_install_block_collision"/>
+                </body>
+                <body name="sensor_install_block" pos="0.335 0 0.15" quat="1 0 0 0">
+                    <inertial pos="0 0 0" quat="1 0 0 0"
+                              mass="0.00001" diaginertia="3.39072e-07 2.83252e-07 2.02321e-07"/>
+                    <geom rgba="0.3 0.4 0.6 1" type="box" size=" 0.06 0.15 0.1" name="sensor_install_block_collision"/>
+                </body>
+
+
+            </body>
+        </body>
+    </worldbody>
+
+</mujoco>

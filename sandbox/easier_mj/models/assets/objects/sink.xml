@@ -1,0 +1,26 @@
+<mujoco model="sink">
+    <asset>
+        <texture file="../textures/light-wood.png" type="2d" name="tex-light-wood"/>
+        <material name="light-wood" reflectance="0.5" texrepeat="20 20" texture="tex-light-wood" texuniform="true"/>
+    </asset>
+
+    <worldbody>
+        <body name="sink" pos="0 0 0.05">
+            <freejoint></freejoint>
+            <geom pos="0 0 0" size="0.15 0.15 0.08 " type="box" name="sink_bottom_collision" friction="1 0.005 0.0001"
+                  rgba="0.1 0.1 0.1 0.3"/>
+            <geom pos="0 0.12 0.1" size="0.14 0.02 0.1" type="box" name="sink_1_collision" friction="1 0.005 0.0001"
+                  rgba="0.1 0.1 0.1 0.3"/>
+            <geom pos="0 -0.12 0.1" size="0.14 0.02 0.1" type="box" name="sink_2_collision" friction="1 0.005 0.0001"
+                  rgba="0.1 0.1 0.1 0.3"/>
+            <geom pos="0.12 0  0.1" size="0.02 0.14 0.1" type="box" name="sink_3_collision" friction="1 0.005 0.0001"
+                  rgba="0.1 0.1 0.1 0.3"/>
+            <geom pos="-0.12 0  0.1" size="0.02 0.14 0.1" type="box" name="sink_4_collision" friction="1 0.005 0.0001"
+                  rgba="0.1 0.1 0.1 0.3"/>
+            <!--<geom pos="-0.1 0  0.08" size="0.01 0.1 0.15" type="box" name="sink_5_collision" friction="1 0.005 0.0001"/>-->
+            <!--                        <site pos="0 0 0.4" name="TABLE_top" size="0.001 0.001 0.001" rgba="0 0 0 0"/>-->
+        </body>
+
+
+    </worldbody>
+</mujoco>

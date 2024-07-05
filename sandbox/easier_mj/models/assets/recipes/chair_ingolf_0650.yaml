@@ -1,0 +1,57 @@
+# xyz parameters
+fine_magnitude: 2
+z_finedist: 0.1
+lat_magnitude: 10
+eps: 0.01
+eps_fine: 0.005
+# rot parameters
+rot_magnitude: 0.4
+rot_eps: 0.05
+rot_eps_fine: 0.02
+min_rot_act: 0.1
+min_rot_act_fine: 0.03
+# general parameters
+use_closest: True
+max_success_steps: 800
+# assembly order parameters
+recipe:
+  - !!python/tuple [ "2_part2", "3_part3" ]
+  - !!python/tuple [ "1_part1", "3_part3" ]
+  - !!python/tuple [ "1_part1", "4_part4" ]
+  - !!python/tuple [ "0_part0", "1_part1" ]
+
+site_recipe:
+  - !!python/tuple [ "side-seat,0,180,conn_site1","seat-side,0,180,conn_site2", 180 ]
+  - !!python/tuple [ "side-seat,0,180,conn_site2", "seat-side,0,180,conn_site1", 180 ]
+  - !!python/tuple [ "side-back,0,conn_site1", "back-side,0,conn_site3", 0 ]
+  - !!python/tuple [ "front-side,0,conn_site2", "side-front,0,conn_site2", 0 ]
+
+grip_init_pos:
+  -
+  - - [ 0, 0, 0, 0.15 ]
+  - - [ 0, 0, 0, 0.15 ]
+  - - [ 0, 0, 0, 0.25 ]
+
+waypoints:
+  - - [ 0, 0, 0.05 ]
+  - - [ 0, 0, 0.05 ]
+  - - [ 0, 0, 0.1 ]
+  - - [ 0, 0, 0.27 ]
+
+z_conn_dist:
+  - 0
+  - 0
+  - 0.005
+  - 0
+
+nogrip_safepos:
+  -
+  -
+  -
+  -
+
+grip_angles:
+  - - [ 0, 0, -1 ]
+  - - [ 0, 0, -1 ]
+  - - [ 0, 0, -1 ]
+  - - [ 0, 0, -1 ]
