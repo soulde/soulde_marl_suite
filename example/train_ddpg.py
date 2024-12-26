@@ -45,7 +45,6 @@ def train():
                 action += torch.randn_like(action)
             # u = action[:, 0].cpu().detach().numpy()
             u = action.cpu().detach().numpy()
-            print('u', u)
             next_ob, rew, dones, truncation, infos = envs.step(u)
             reward_sum += rew
 

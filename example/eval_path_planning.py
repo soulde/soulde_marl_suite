@@ -15,11 +15,13 @@ def evaluation():
     device = torch.device("cpu")
     exp = ExperimentManager('./run')
 
-    exp.start_experiment('../configs/path_planning_eval.json')
+    exp.start_experiment('configs/path_planning.json')
 
     env = PathPlanningSandbox(exp.args['sandbox'])
 
-    agent = MADDPG(Actor, Critic, env.state_dim, env.action_dim, device=device)
+    param = AgentParams()
+
+    agent = MADDPG(Actor, Critic,2, env.state_dim[0], env.action_dim[0], param=param)
 
     ob, _ = env.reset()
 
@@ -46,7 +48,9 @@ def evaluation():
                 reward_sum = np.zeros_like(reward_sum)
 
             ob = next_ob
-            env.render()
+            image = env.render('rgb_array')
+            image = cv2.resize(image, (300, 300))
+            cv2.imshow('image', image)
             cv2.waitKey(1)
 
 

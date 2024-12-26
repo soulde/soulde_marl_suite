@@ -90,10 +90,8 @@ class ACPolicy(object):
             self.critic_target.load_state_dict(torch.load(os.path.join(directory, 'critic_target_{}.pth'.format(name))))
 
     def get_action(self, states, use_target=False):
-        print('state', states)
         actions = tuple(
             actor(states[:, i]) for i, actor in enumerate(self.actors_target if use_target else self.actors))
-        print(actions)
         actions = torch.stack(actions, dim=1)
         return actions
 

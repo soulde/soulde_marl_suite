@@ -119,7 +119,7 @@ class SandBox:
         return states, info
 
     def render(self, mode='rgb_array'):
-        self.renderer_.render(mode=mode)
+        return self.renderer_.render(mode=mode)
 
     def sample(self, zero=False):
         return self.mission_.sample(zero=zero)
