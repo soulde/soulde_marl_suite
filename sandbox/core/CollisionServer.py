@@ -38,7 +38,6 @@ class Circle(Shape):
         self.mask = self.radius * np.stack([np.array([np.cos(theta), np.sin(theta)]) for theta in
                                             np.linspace(0, 2 * np.pi, 180)], axis=0)
 
-
     def is_point_inside(self, pos):
         return np.linalg.norm(self.pos - pos) < self.radius
 
@@ -91,9 +90,9 @@ class CollisionServer:
 
     def check_collision_all(self):
         collision_info = []
-        for name, body in self.bodies.items():
-            if self.background_check(body):
-                collision_info.append((name, 'env'))
+        # for name, body in self.bodies.items():
+        #     if self.background_check(body):
+        #         collision_info.append((name, 'env'))
 
         for name1, name2 in combinations(self.bodies.keys(), 2):
             if self.collide(self.bodies[name1], self.bodies[name2]):
@@ -128,14 +127,11 @@ class CollisionServer:
         return {k: body.getTransform().getTranslation() for k, body in self.bodies.items()}
 
     def collide(self, shape1, shape2):
-        p1 = set(tuple(np.round(p).astype(int)) for p in (shape1.mask + shape1.pos))
-        p2 = set(tuple(np.round(p).astype(int)) for p in (shape2.mask + shape2.pos))
-
-        return len(p1 & p2) > 0
+        return np.linalg.norm(shape1.pos - shape2.pos) < shape1.radius + shape2.radius
 
     def background_check(self, shape):
         if self.backgound is None:
-            print("Background is not set")
+            # print("Background is not set")
             return False
 
         for i in set(tuple(np.round(p).astype(int)) for p in (shape.mask + shape.pos)):

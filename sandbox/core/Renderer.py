@@ -43,8 +43,9 @@ class BasicRenderer(Renderer):
             next_pos = pos + 6 * v * np.array((np.cos(dire), np.sin(dire)))
             pos = pos.astype(int)
             next_pos = next_pos.astype(int)
-            cv2.circle(frame_copy, pos, agent.collision_info_['args'][0], (0, 255, 0), -1)
-            cv2.arrowedLine(frame_copy, pos, next_pos, (0, 255, 0), 2)
+            if np.all(pos > 0):
+                cv2.circle(frame_copy, pos, agent.collision_info_['args'][0], (0, 255, 0), -1)
+                cv2.arrowedLine(frame_copy, pos, next_pos, (0, 255, 0), 2)
         if mode == 'rgb_array':
             return frame_copy
         elif mode == 'human':

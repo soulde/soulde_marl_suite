@@ -31,8 +31,8 @@ class DefendMission(USVMission):
         self.distance = np.zeros(self.num_agents)
         self.err_distance = np.zeros(self.num_agents)
 
-        for i in range(self.num_agents):
-            self.sandbox.register_agent('agent_{}'.format(i), USVAgent, self.agents_profile)
+        # for i in range(self.num_agents):
+        #     self.sandbox.register_agent('agent_{}'.format(i), USVAgent, self.agents_profile)
 
     def reset(self):
         self.enemy_counter = 0
@@ -42,7 +42,7 @@ class DefendMission(USVMission):
     def _add_single_enemy(self):
         pos = np.random.uniform(self.enemy_start_area[:2], self.enemy_start_area[2:])
         enemy: USVAgent = self.sandbox.creat_agent_from_profile('enemy_{}'.format(self.enemy_counter), USVAgent,
-                                                                self.enemy_profile, pos)
+                                                                self.enemy_profile)
         self.sandbox.collision_server.register(enemy.name, enemy.pos, enemy.collision_info_['type'],
                                                *enemy.collision_info_['args'])
         self.enemy.append(enemy)
@@ -62,7 +62,8 @@ class DefendMission(USVMission):
             action = self.enemy_policy(i)
             i(action, self.sandbox.tick)
             self.sandbox.collision_server.update_pos(i.name, i.pos)
-
+        # print([e.pos for e in self.enemy])
+        # print([a.pos for a in self.sandbox.agents])
         # defend state detect
         self.captured_enemy = []
         reach_enemy = []
@@ -94,8 +95,10 @@ class DefendMission(USVMission):
         for i in self.captured_enemy:
             self.sandbox.collision_server.unregister(i.name)
         super(DefendMission, self).step()
+        # print(self.collision_info)
         self.distance = np.array(
             [np.array([np.linalg.norm(a.pos - e.pos) for e in self.enemy]).min() for a in self.sandbox.agents])
+
         self.err_distance = self.last_distance - self.distance
         self.last_distance = self.distance
 
@@ -103,7 +106,11 @@ class DefendMission(USVMission):
         action = np.zeros(enemy.dim_input)
         vec = np.zeros(2)
         for a in self.sandbox.agents:
-            vec -= 20 / (20 + (a.pos - enemy.pos))
+            value = 20 / (20 + (a.pos - enemy.pos))
+            if np.isnan(value).any():
+                value = 0
+            vec -= value
+
         vec += np.array([1, 0])
         vec /= np.linalg.norm(vec)
         theta_target = np.arctan2(vec[1], vec[0])
@@ -115,9 +122,14 @@ class DefendMission(USVMission):
         capture_reward = np.zeros(self.num_agents)
         for i in self.agents_add_score:
             capture_reward[i] += self.success_reward
-        agents_collision = [any([a.name in i for i in self.collision_info]) for a in self.sandbox.agents]
-        total_reward = self.collision_factor * (np.array(self.hit_wall_info) | np.array(
-            agents_collision))
+        if self.collision_info is None:
+            agents_collision = np.zeros(self.num_agents)
+        else:
+            agents_collision = [any([a.name in i for i in self.collision_info]) for a in self.sandbox.agents]
+
+        total_reward = self.collision_factor * np.array(
+            agents_collision)
+        # print(capture_reward, total_reward, self.err_distance)
         if self.failure_flag:
             return self.failure_reward * np.ones(self.num_agents) + total_reward
         else:
@@ -147,7 +159,7 @@ class DefendingRenderer(BasicRenderer):
     def __init__(self, config: Config, sandbox: SandBox):
         super(DefendingRenderer, self).__init__(config, sandbox)
 
-    def render(self, mode):
+    def render(self, mode='rgb_array'):
         frame_copy = super(DefendingRenderer, self).render('rgb_array')
         for agent in self.sandbox.mission_.enemy:
             v, dire = agent.state[2:]
@@ -156,8 +168,9 @@ class DefendingRenderer(BasicRenderer):
             next_pos = pos + 5 * self.plot_scale * v * np.array((np.cos(dire), np.sin(dire)))
             pos = pos.astype(int)
             next_pos = next_pos.astype(int)
-            cv2.circle(frame_copy, pos, self.plot_scale, (255, 0, 0), -1)
-            cv2.arrowedLine(frame_copy, pos, next_pos, (255, 0, 0), 2)
+            if np.all(pos > 0):
+                cv2.circle(frame_copy, pos, self.plot_scale, (255, 0, 0), -1)
+                cv2.arrowedLine(frame_copy, pos, next_pos, (255, 0, 0), 2)
         if mode == 'human':
             cv2.imshow(self.sandbox.name, frame_copy)
             cv2.waitKey(1)

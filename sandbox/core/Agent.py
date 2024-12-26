@@ -10,7 +10,7 @@ from .CollisionServer import CollisionServer
 
 
 class Agent(ABC):
-    def __init__(self, name, state_range, input_range, initial_state=None, collision_info=None):
+    def __init__(self, name, state_range, input_range, initial_state='random', collision_info=None):
         if collision_info is None:
             collision_info = {'type': 'circle', 'args': (1,)}
         self.name_ = name
@@ -105,7 +105,7 @@ class USVAgent(Agent):
     def __call__(self, u, t):
         # state: x, y, v, phi
         # u: a,omega
-
+        # print(self.name, u, t, self.state_)
         u = clip(u, self.input_range_[1], self.input_range_[0])
 
         self.state_[2:] += u * t

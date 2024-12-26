@@ -13,7 +13,7 @@ from functools import partial
 def train():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")  # 设置了训练使用的设备
     exp = ExperimentManager('./run')
-    exp.start_experiment('configs/defending.json')
+    exp.start_experiment('configs/defending_ddpg_easy.json')
     n_envs = exp.args['train/n_envs']
     num_agents = exp.args['sandbox/mission/num_agents']
     envs = ParallelContainer(n_envs, partial(DefendingSandbox, exp.args['sandbox']))
@@ -22,7 +22,7 @@ def train():
     # env = gym.make('Pendulum-v1', render_mode='human')
     param = AgentParams()
     param.from_config(train_param)
-    agent = MADDPG(Actor, Critic, num_agents, 16, 2, param, np.array([1, 3]))
+    agent = MADDPG(Actor, Critic, num_agents, 16, 2, param)
 
     pool = ReplayBuffer(int(train_param['capacity']), n_envs, num_agents, (16, 2, 1, 1), (),
                         mode='off_policy',
@@ -39,12 +39,13 @@ def train():
                 break
             pbar.update(1)
             with torch.no_grad():
-                action = agent.get_action(ob)
+
+                action = agent.get_action(ob/20.)
             if c < train_param['explore_step']:
                 action += torch.randn_like(action)
             # u = action[:, 0].cpu().detach().numpy()
             u = action.cpu().detach().numpy()
-
+            print('u', u)
             next_ob, rew, dones, truncation, infos = envs.step(u)
             reward_sum += rew
 

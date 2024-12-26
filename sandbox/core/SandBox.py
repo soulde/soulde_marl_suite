@@ -87,7 +87,6 @@ class SandBox:
                 self.renderer_.render(mode=self.render_mode)
             self.mission_.step()
             if not self.mission_.skip_frame():
-                print('break')
                 break
         states = self.mission_.get_state()
         reward = self.mission_.calculate_reward()
@@ -103,7 +102,7 @@ class SandBox:
         self.collision_server.reset()
         self.frame = self.map_generator_.generate()
         self.size_ = self.frame.shape
-        self.collision_server.set_background(self.frame)
+        # self.collision_server.set_background(self.frame)
         self.agents.clear()
         for n, a, p in self.agents_type_profile_list:
             agent = self.creat_agent_from_profile(n, a, p)
@@ -119,7 +118,7 @@ class SandBox:
             info = self.logger()
         return states, info
 
-    def render(self, mode='human'):
+    def render(self, mode='rgb_array'):
         self.renderer_.render(mode=mode)
 
     def sample(self, zero=False):

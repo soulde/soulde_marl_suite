@@ -65,7 +65,7 @@
 		"tick": 0.01
 	},
 	"train": {
-		"n_envs": 24,
+		"n_envs": 1,
 		"max_step": 2e5,
 		"batch_size": 128,
 		"repeat": 4,
