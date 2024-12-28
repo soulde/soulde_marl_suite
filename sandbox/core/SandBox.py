@@ -34,7 +34,10 @@ class SandBox:
         self.info_buffer = {}
 
         self.collision_server = CollisionServer()
-        self.frame = None
+        map_size = self.config['map']['size']
+        map_size[0] *= self.config['renderer']['plot_scale']
+        map_size[1] *= self.config['renderer']['plot_scale']
+        self.frame = np.ones(map_size, dtype=np.uint8) * 255
         self.size_ = None
         self.render_mode = render_mode
 

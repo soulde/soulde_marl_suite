@@ -49,8 +49,6 @@ def evaluation():
 
             ob = next_ob
             image = env.render('rgb_array')
-            image = cv2.resize(image, (300, 300))
-            cv2.imshow('image', image)
             cv2.waitKey(1)
 
 

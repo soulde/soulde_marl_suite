@@ -35,16 +35,20 @@ class BasicRenderer(Renderer):
         frame_copy = np.stack([frame_copy, frame_copy, frame_copy], axis=-1)
         # for i in self.sandbox.collision_server.bodies.values():
         #     for p in set(sum([corners(p) for p in (i.mask + i.pos)], [])):
-        #         cv2.circle(frame_copy, p, 1, (124,0,0), -1)
+        #         p = np.array(p)*self.plot_scale
+        #         p = p.astype(int)
+        #         cv2.circle(frame_copy, p, self.plot_scale, (124, 0, 0), -1)
         for agent in self.sandbox.agents:
             v, dire = agent.state[2:]
             # print(v, dire)
             pos: np.ndarray = agent.pos.copy()
             next_pos = pos + 6 * v * np.array((np.cos(dire), np.sin(dire)))
+            pos *= self.plot_scale
+            next_pos *= self.plot_scale
             pos = pos.astype(int)
             next_pos = next_pos.astype(int)
             if np.all(pos > 0):
-                cv2.circle(frame_copy, pos, agent.collision_info_['args'][0], (0, 255, 0), -1)
+                cv2.circle(frame_copy, pos, agent.collision_info_['args'][0] * self.plot_scale, (0, 255, 0), -1)
                 cv2.arrowedLine(frame_copy, pos, next_pos, (0, 255, 0), 2)
         if mode == 'rgb_array':
             return frame_copy

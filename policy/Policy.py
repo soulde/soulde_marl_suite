@@ -23,6 +23,10 @@ class ValueBase(object):
 
         self.optimizer = AdamW(sum((list(actor.parameters()) for actor in self.models), []), lr=param.actor_lr)
 
+    @abstractmethod
+    def train(self, batch_data):
+        raise NotImplementedError
+
     def save_model(self, directory: str, name: str):
         for i, (actor, actor_target) in enumerate(zip(self.models, self.models_target)):
             torch.save(actor.state_dict(), os.path.join(directory, 'model_{}_{}.pth'.format(i, name)))
@@ -43,10 +47,6 @@ class ValueBase(object):
     def get_action(self, state):
         q = self.get_value(state, True)
         return torch.max(q, dim=-1)[1]
-
-    @abstractmethod
-    def train(self, batch_data):
-        raise NotImplementedError
 
 
 class ACPolicy(object):
@@ -71,6 +71,10 @@ class ACPolicy(object):
         self.actor_optimizer = AdamW(sum((list(actor.parameters()) for actor in self.actors), []),
                                      lr=param.actor_lr)
         self.critic_optimizer = AdamW(self.critic.parameters(), lr=param.critic_lr)
+
+    @abstractmethod
+    def train(self, batch_data):
+        raise NotImplementedError
 
     def save_model(self, directory: str, name: str):
         for i, (actor, actor_target) in enumerate(zip(self.actors, self.actors_target)):
@@ -99,6 +103,4 @@ class ACPolicy(object):
         qf = self.critic_target(states, actions) if use_target else self.critic(states, actions)
         return qf
 
-    @abstractmethod
-    def train(self, batch_data):
-        raise NotImplementedError
+
